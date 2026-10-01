@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Watch — Wynder</title>
+<meta id="page-desc" name="description" content="Independently verified luxury watch, listed on Wynder.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <a href="index.html" class="logo"><span>W</span>YNDER</a>
+    <ul class="navlinks">
+      <li><a href="browse.html" style="color:#d9b567;">Browse</a></li>
+      <li><a href="how-it-works.html">How it works</a></li>
+      <li><a href="sell.html">Sell yours</a></li>
+      <li><a href="wynder-access.html">Wynder Access</a></li>
+      <li><a href="authentication.html">Authentication</a></li>
+    </ul>
+    <div class="navcta">
+      <a href="#" class="navtext">Sign in</a>
+      <a href="browse.html" class="btn btn-gold">Browse watches</a>
+      <button class="menu-btn" aria-label="Open menu">&#9776;</button>
+    </div>
+  </nav>
+</header>
+
+<section class="light" style="padding:40px 0 90px;">
+  <div class="wrap">
+    <div class="crumb" style="margin-bottom:36px;">
+      <a href="index.html" style="color:#8a8272; text-decoration:none;">Home</a> &nbsp;/&nbsp;
+      <a href="browse.html" style="color:#8a8272; text-decoration:none;">Browse</a> &nbsp;/&nbsp;
+      <span id="crumb-current">&hellip;</span>
+    </div>
+
+    <div id="product-root">
+      <p style="font-size:14px; color:#8a8272;">Loading watch&hellip;</p>
+    </div>
+
+    <div id="not-found" style="display:none; max-width:560px;">
+      <p class="eyebrow">Not found</p>
+      <h1 class="serif" style="font-size:32px; margin:14px 0;">We couldn&rsquo;t find that listing.</h1>
+      <p style="color:#5c5443; font-size:14.5px; margin-bottom:26px;">It may have been sold, or the link may be out of date.</p>
+      <a href="browse.html" class="btn btn-gold">Back to Browse</a>
+    </div>
+
+    <div id="condition-report" style="margin-top:70px; max-width:760px; display:none;">
+      <p class="eyebrow">Condition report</p>
+      <h2 class="serif" style="font-size:26px; margin:16px 0 14px;">What our specialists noted</h2>
+      <p id="condition-text" style="color:#5c5443; font-size:14.5px; line-height:1.8;"></p>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band" style="padding:90px 0;">
+  <div class="wrap">
+    <p class="eyebrow" style="justify-content:center;">Considering this piece</p>
+    <h2 style="margin-top:18px; font-size:clamp(30px,4vw,44px);">Questions before you buy?</h2>
+    <div class="cta-actions">
+      <a href="#" class="btn btn-gold">Speak to a specialist</a>
+      <a href="browse.html" class="btn btn-ghost">Continue browsing</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-logo"><span>W</span>YNDER</div>
+        <p class="foot-tag">The trusted way to buy, sell and subscribe to authenticated luxury watches across the UK &amp; Europe.</p>
+      </div>
+      <div>
+        <div class="foot-h">Shop</div>
+        <ul class="foot-links">
+          <li><a href="browse.html">Browse all watches</a></li>
+          <li><a href="#">Rolex</a></li>
+          <li><a href="#">Patek Philippe</a></li>
+          <li><a href="wynder-access.html">Wynder Access</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-h">Sell</div>
+        <ul class="foot-links">
+          <li><a href="sell.html">Get an instant offer</a></li>
+          <li><a href="#">Part-exchange</a></li>
+          <li><a href="authentication.html">Authentication process</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-h">Company</div>
+        <ul class="foot-links">
+          <li><a href="index.html#team">About Wynder</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; 2026 Wynder Holdings Ltd. All rights reserved.</span>
+      <span>Terms &middot; Privacy &middot; Cookies</span>
+    </div>
+  </div>
+</footer>
+
+<script src="data/listings.js"></script>
+<script>
+  const menuBtn = document.querySelector('.menu-btn');
+  const navlinks = document.querySelector('.navlinks');
+  if(menuBtn){
+    menuBtn.addEventListener('click', () => {
+      const open = navlinks.style.display === 'flex';
+      navlinks.style.display = open ? 'none' : 'flex';
+      navlinks.style.cssText += open ? '' : 'position:absolute; top:82px; left:0; right:0; flex-direction:column; background:#0d0c0a; padding:20px 24px; border-bottom:1px solid #332f22; gap:18px;';
+    });
+  }
+
+  const iconShapes = [
+    '<circle cx="60" cy="60" r="44"/><circle cx="60" cy="60" r="36"/><line x1="60" y1="60" x2="60" y2="34"/><line x1="60" y1="60" x2="80" y2="68"/><circle cx="60" cy="60" r="2.4" fill="#a9822f"/><rect x="52" y="8" width="16" height="14" rx="2"/><rect x="52" y="98" width="16" height="14" rx="2"/>',
+    '<rect x="24" y="24" width="72" height="72" rx="10"/><circle cx="60" cy="60" r="26"/><line x1="60" y1="60" x2="60" y2="42"/><line x1="60" y1="60" x2="74" y2="60"/>',
+    '<circle cx="60" cy="60" r="46"/><circle cx="60" cy="60" r="30"/><line x1="60" y1="60" x2="60" y2="36"/><line x1="60" y1="60" x2="78" y2="72"/><circle cx="60" cy="60" r="2.4" fill="#a9822f"/>',
+    '<circle cx="60" cy="60" r="44"/><circle cx="60" cy="60" r="34"/><line x1="60" y1="60" x2="60" y2="38"/><line x1="60" y1="60" x2="72" y2="66"/><circle cx="60" cy="60" r="2.4" fill="#a9822f"/><circle cx="60" cy="24" r="3"/>',
+  ];
+
+  function getParam(name){
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  function conditionBlurb(w){
+    const papersNote = w.papers === 'Full set'
+      ? 'full box, papers and booklets are present'
+      : w.papers === 'Watch only'
+        ? 'this example is watch-only, with no box or papers'
+        : w.papers.toLowerCase() + ' accompany the watch';
+    return `This ${w.brand} ${w.model} was independently authenticated by our in-house specialists ahead of listing \u2014 movement, case and bracelet verified against manufacturer specification, and ${papersNote}. It is offered in ${w.condition.toLowerCase()} condition and carries the full Wynder Authentication Guarantee.`;
+  }
+
+  const id = getParam('id');
+  const w = (typeof WYNDER_LISTINGS !== 'undefined') ? WYNDER_LISTINGS.find(x => x.id === id) : null;
+  const root = document.getElementById('product-root');
+
+  if(!w){
+    root.style.display = 'none';
+    document.getElementById('not-found').style.display = 'block';
+  } else {
+    document.title = `${w.brand} ${w.model} — Wynder`;
+    document.getElementById('page-desc').setAttribute('content', `${w.brand} ${w.model}, ${w.meta.replace(/&middot;/g,'—').replace(/&amp;/g,'&')}. Independently verified by Wynder.`);
+    document.getElementById('crumb-current').textContent = `${w.brand} ${w.model}`;
+
+    const mediaInner = w.img
+      ? `<img src="${w.img}" alt="${w.brand} ${w.model}">`
+      : `<svg viewBox="0 0 120 120" width="42%" fill="none" stroke="#a9822f" stroke-width="1.3">${iconShapes[w.icon || 0]}</svg>`;
+
+    root.innerHTML = `
+      <div class="product-layout">
+        <div>
+          <div class="product-media" style="${w.img ? '' : 'display:flex; align-items:center; justify-content:center;'}">
+            <div class="wcard-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+              Verified
+            </div>
+            ${mediaInner}
+          </div>
+        </div>
+        <div>
+          <div class="product-brand">${w.brand}</div>
+          <h1 class="product-title">${w.model}</h1>
+          <div class="product-sub">${w.meta}</div>
+          <div class="product-price">${w.price}</div>
+          <div class="product-actions">
+            <a href="#" class="btn btn-gold">Buy now</a>
+            <a href="#" class="btn btn-ghost" style="border-color:#d9cdb0; color:#171511;">Get financing quote</a>
+            <a href="sell.html" class="btn btn-ghost" style="border-color:#d9cdb0; color:#171511;">Part-exchange</a>
+          </div>
+          <table class="spec-table">
+            <tr><td>Brand</td><td>${w.brand}</td></tr>
+            <tr><td>Model</td><td>${w.model.replace(/,.*$/, '')}</td></tr>
+            <tr><td>Reference number</td><td>${w.ref}</td></tr>
+            <tr><td>Materials</td><td>${w.materials}</td></tr>
+            <tr><td>Case diameter</td><td>${w.caseDiameter}mm</td></tr>
+            <tr><td>Movement</td><td>${w.movement}</td></tr>
+            <tr><td>Condition</td><td>${w.condition}</td></tr>
+            <tr><td>Year of production</td><td>${w.year}</td></tr>
+            <tr><td>Box &amp; papers</td><td>${w.papers}</td></tr>
+          </table>
+          <div class="trust-row">
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>Wynder Authentication Guarantee</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg>7-day money-back guarantee</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 10-16 0 8 8 0 0016 0z"/><path d="M12 8v4l3 3"/></svg>Insured delivery, 48hrs</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('condition-text').textContent = conditionBlurb(w);
+    document.getElementById('condition-report').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
