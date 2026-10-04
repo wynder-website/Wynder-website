@@ -53,6 +53,24 @@
 
 const WYNDER_LISTINGS = [
   {
+    id: 'patek-philippe-aquanaut-5968g',
+    brand: 'Patek Philippe', model: 'Aquanaut Chronograph 5968G-010',
+    meta: 'Khaki dial &middot; New full set',
+    price: '£119,500', priceValue: 119500,
+    img: 'images/patek-philippe-aquanaut-5968g-01.webp', icon: 0,
+    condition: 'Unworn', papers: 'Full set', caseDiameter: 40,
+    ref: '5968G-010', materials: 'White gold', movement: 'Automatic', year: 2025
+  },
+  {
+    id: 'patek-philippe-nautilus-5711-1300a',
+    brand: 'Patek Philippe', model: 'Nautilus 5711/1300A-001',
+    meta: 'Olive green dial, diamond bezel &middot; Full set',
+    price: '£178,000', priceValue: 178000,
+    img: 'images/patek-philippe-nautilus-5711-01.webp', icon: 3,
+    condition: 'Excellent', papers: 'Full set', caseDiameter: 40,
+    ref: '5711/1300A-001', materials: 'Stainless steel', movement: 'Automatic', year: 2021
+  },
+  {
     id: 'rolex-daydate-128238',
     brand: 'Rolex', model: 'Day-Date 128238',
     meta: 'Green dial &middot; New full set',
@@ -116,113 +134,5 @@ const WYNDER_LISTINGS = [
     link: 'product-daytona-126505-black-diamond.html',
     condition: 'Unworn', papers: 'Full set', caseDiameter: 40,
     ref: '126505', materials: 'Rose gold', movement: 'Automatic', year: 2026
-  },
-  {
-    id: 'rolex-submariner-date-41',
-    brand: 'Rolex', model: 'Submariner Date, 41mm',
-    meta: '2022 &middot; Box &amp; papers',
-    price: '£11,450', priceValue: 11450,
-    img: null, icon: 0,
-    condition: 'Excellent', papers: 'Full set', caseDiameter: 41,
-    ref: '126610LN', materials: 'Stainless steel', movement: 'Automatic', year: 2022
-  },
-  {
-    id: 'rolex-datejust-36',
-    brand: 'Rolex', model: 'Datejust 36',
-    meta: '2018 &middot; Box &amp; papers',
-    price: '£7,200', priceValue: 7200,
-    img: null, icon: 3,
-    condition: 'Very good', papers: 'Full set', caseDiameter: 36,
-    ref: '126234', materials: 'Steel &amp; white gold', movement: 'Automatic', year: 2018
-  },
-  {
-    id: 'rolex-gmt-master-ii',
-    brand: 'Rolex', model: 'GMT-Master II',
-    meta: '2021 &middot; Full set',
-    price: '£15,900', priceValue: 15900,
-    img: null, icon: 0,
-    condition: 'Excellent', papers: 'Full set', caseDiameter: 40,
-    ref: '126710BLRO', materials: 'Stainless steel', movement: 'Automatic', year: 2021
-  },
-  {
-    id: 'cartier-santos-medium',
-    brand: 'Cartier', model: 'Santos de Cartier, Medium',
-    meta: '2021 &middot; Full set',
-    price: '£6,900', priceValue: 6900,
-    img: null, icon: 1,
-    condition: 'Excellent', papers: 'Full set', caseDiameter: 35.1,
-    ref: 'WSSA0029', materials: 'Stainless steel', movement: 'Automatic', year: 2021
-  },
-  {
-    id: 'cartier-tank-must',
-    brand: 'Cartier', model: 'Tank Must',
-    meta: '2020 &middot; Papers only',
-    price: '£3,100', priceValue: 3100,
-    img: null, icon: 1,
-    condition: 'Good', papers: 'Papers only', caseDiameter: 33.7,
-    ref: 'WSTA0042', materials: 'Stainless steel', movement: 'Quartz', year: 2020
-  },
-  {
-    id: 'omega-speedmaster-professional',
-    brand: 'Omega', model: 'Speedmaster Professional',
-    meta: '2020 &middot; Box &amp; papers',
-    price: '£4,250', priceValue: 4250,
-    img: null, icon: 2,
-    condition: 'Excellent', papers: 'Full set', caseDiameter: 42,
-    ref: '310.30.42.50.01.001', materials: 'Stainless steel', movement: 'Manual', year: 2020
-  },
-  {
-    id: 'omega-seamaster-diver-300m',
-    brand: 'Omega', model: 'Seamaster Diver 300M',
-    meta: '2019 &middot; Watch only',
-    price: '£3,450', priceValue: 3450,
-    img: null, icon: 2,
-    condition: 'Very good', papers: 'Watch only', caseDiameter: 42,
-    ref: '210.30.42.20.01.001', materials: 'Stainless steel', movement: 'Automatic', year: 2019
-  },
-  {
-    id: 'patek-philippe-nautilus-5711',
-    brand: 'Patek Philippe', model: 'Nautilus 5711/1A',
-    meta: '2019 &middot; Full set',
-    price: '£118,000', priceValue: 118000,
-    img: null, icon: 3,
-    condition: 'Excellent', papers: 'Full set', caseDiameter: 40,
-    ref: '5711/1A-010', materials: 'Stainless steel', movement: 'Automatic', year: 2019
-  },
-  {
-    id: 'patek-philippe-calatrava-5227',
-    brand: 'Patek Philippe', model: 'Calatrava 5227',
-    meta: '2022 &middot; Full set',
-    price: '£29,500', priceValue: 29500,
-    img: null, icon: 3,
-    condition: 'Unworn', papers: 'Full set', caseDiameter: 39,
-    ref: '5227G-001', materials: 'White gold', movement: 'Automatic', year: 2022
-  },
-  {
-    id: 'audemars-piguet-royal-oak-15500',
-    brand: 'Audemars Piguet', model: 'Royal Oak 15500ST',
-    meta: '2023 &middot; Box &amp; papers',
-    price: '£42,500', priceValue: 42500,
-    img: null, icon: 0,
-    condition: 'Unworn', papers: 'Full set', caseDiameter: 39,
-    ref: '15500ST.OO.1220ST.01', materials: 'Stainless steel', movement: 'Automatic', year: 2023
-  },
-  {
-    id: 'vacheron-constantin-overseas-4500v',
-    brand: 'Vacheron Constantin', model: 'Overseas 4500V',
-    meta: '2021 &middot; Full set',
-    price: '£26,900', priceValue: 26900,
-    img: null, icon: 0,
-    condition: 'Excellent', papers: 'Full set', caseDiameter: 41,
-    ref: '4500V/110A-B128', materials: 'Stainless steel', movement: 'Automatic', year: 2021
-  },
-  {
-    id: 'iwc-portugieser-chronograph',
-    brand: 'IWC', model: 'Portugieser Chronograph',
-    meta: '2020 &middot; Box &amp; papers',
-    price: '£6,300', priceValue: 6300,
-    img: null, icon: 2,
-    condition: 'Excellent', papers: 'Full set', caseDiameter: 41,
-    ref: 'IW371605', materials: 'Stainless steel', movement: 'Automatic', year: 2020
   },
 ];
