@@ -93,15 +93,16 @@
 <section id="browse" class="light">
   <div class="wrap">
     <div class="section-head">
-      <p class="eyebrow">Curated inventory</p>
-      <h2 class="serif">A selection, not a stockroom.</h2>
-      <p>Every piece is sourced, inspected and priced against real-time market data before it ever reaches the platform.</p>
+      <p class="eyebrow">Classifieds</p>
+      <h2 class="serif">The latest listings.</h2>
+      <p>Everything we currently have available, updated as new stock arrives.</p>
     </div>
 
+    <div class="cat-tabs" id="home-tabs" style="display:none;"></div>
     <div class="grid-watches" id="home-grid"></div>
 
     <div class="browse-foot">
-      <a href="browse.html" class="btn" style="border:1px solid #d9cdb0; color:#171511;">View all watches</a>
+      <a href="browse.html" class="btn" style="border:1px solid #d9cdb0; color:#171511;">View all listings</a>
     </div>
   </div>
 </section>
@@ -302,33 +303,72 @@
 
 <script src="data/listings.js"></script>
 <script>
-  // featured inventory on the homepage, built from data/listings.js
+  // classifieds on the homepage, built from data/listings.js
   (function(){
     const grid = document.getElementById('home-grid');
+    const tabsEl = document.getElementById('home-tabs');
     if(!grid || typeof WYNDER_LISTINGS === 'undefined') return;
-    const fallback = '<circle cx="60" cy="60" r="44"/><circle cx="60" cy="60" r="36"/><line x1="60" y1="60" x2="60" y2="34"/><line x1="60" y1="60" x2="80" y2="68"/><circle cx="60" cy="60" r="2.4" fill="#a9822f"/>';
-    grid.innerHTML = WYNDER_LISTINGS.slice(0, 6).map(w => `
-      <div class="wcard">
-        <div class="wcard-media">
-          <div class="wcard-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-            Verified
+    const ALL = WYNDER_LISTINGS.map(w => Object.assign({ category: 'watch' }, w));
+    const CATS = ['watch', 'gold', 'silver'].concat(Array.from(new Set(ALL.map(w => w.category))).filter(c => !['watch', 'gold', 'silver'].includes(c)));
+    const BULLION = ['gold', 'silver'];
+    const LABEL = { watch: 'Watches', gold: 'Gold', silver: 'Silver' };
+    const BADGE = { watch: 'Verified', gold: 'Gold', silver: 'Silver' };
+    const watchIcon = '<circle cx="60" cy="60" r="44"/><circle cx="60" cy="60" r="36"/><line x1="60" y1="60" x2="60" y2="34"/><line x1="60" y1="60" x2="80" y2="68"/><circle cx="60" cy="60" r="2.4" fill="#a9822f"/>';
+    const coinIcon = '<circle cx="60" cy="60" r="42"/><circle cx="60" cy="60" r="33"/><line x1="60" y1="42" x2="60" y2="78"/><line x1="46" y1="60" x2="74" y2="60"/>';
+    let active = 'all';
+
+    function render(){
+      const items = (active === 'all' ? ALL : ALL.filter(w => w.category === active)).slice(0, 24);
+      if(items.length === 0){
+        grid.innerHTML = '<div style="grid-column:1 / -1; padding:70px 20px; text-align:center; background:#faf8f3; color:#8a8272; font-size:14px;">' + (LABEL[active] || 'This section') + ' is coming soon \u2014 new listings will appear here shortly.</div>';
+        return;
+      }
+      grid.innerHTML = items.map(w => `
+        <div class="wcard">
+          <div class="wcard-media">
+            <div class="wcard-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+              ${BADGE[w.category] || 'Listed'}
+            </div>
+            ${w.img
+              ? `<img src="${w.img}" alt="${w.brand} ${w.model}" style="width:100%; height:100%; object-fit:cover;">`
+              : `<svg viewBox="0 0 120 120" fill="none" stroke="#a9822f" stroke-width="1.4">${BULLION.includes(w.category) ? coinIcon : watchIcon}</svg>`}
           </div>
-          ${w.img
-            ? `<img src="${w.img}" alt="${w.brand} ${w.model}" style="width:100%; height:100%; object-fit:cover;">`
-            : `<svg viewBox="0 0 120 120" fill="none" stroke="#a9822f" stroke-width="1.4">${fallback}</svg>`}
-        </div>
-        <div class="wcard-body">
-          <div class="wcard-brand">${w.brand}</div>
-          <div class="wcard-name serif">${w.model}</div>
-          <div class="wcard-meta mono">${w.meta}</div>
-          <div class="wcard-foot">
-            <span class="wcard-price">${w.price}</span>
-            <a href="${w.link || ('product.html?id=' + w.id)}" class="wcard-link">View &rarr;</a>
+          <div class="wcard-body">
+            <div class="wcard-brand">${w.brand}</div>
+            <div class="wcard-name serif">${w.model}</div>
+            <div class="wcard-meta mono">${w.meta}</div>
+            ${BULLION.includes(w.category) ? '<a href="id-requirements.html" style="display:inline-block; margin-top:10px; font-size:11.5px; color:#a9822f; text-decoration:underline;">ID required to buy &rarr;</a>' : ''}
+            <div class="wcard-foot">
+              <span class="wcard-price">${w.price}</span>
+              <a href="${w.link || ('product.html?id=' + w.id)}" class="wcard-link">View &rarr;</a>
+            </div>
           </div>
         </div>
-      </div>
-    `).join('');
+      `).join('') + '<div class="wcard-filler"></div>'.repeat((3 - items.length % 3) % 3);
+    }
+
+    function renderTabs(){
+      if(CATS.length < 2){ tabsEl.style.display = 'none'; return; }
+      tabsEl.style.display = 'flex';
+      const tabs = [{ key: 'all', label: 'All', n: ALL.length }].concat(
+        CATS.map(c => ({ key: c, label: LABEL[c] || c, n: ALL.filter(w => w.category === c).length }))
+      );
+      tabsEl.innerHTML = tabs.map(t =>
+        `<button type="button" class="cat-tab${t.key === active ? ' active' : ''}" data-cat="${t.key}">${t.label}<span class="n">${t.n}</span></button>`
+      ).join('');
+    }
+
+    tabsEl.addEventListener('click', e => {
+      const btn = e.target.closest('.cat-tab');
+      if(!btn) return;
+      active = btn.dataset.cat;
+      renderTabs();
+      render();
+    });
+
+    renderTabs();
+    render();
   })();
 </script>
 <script>

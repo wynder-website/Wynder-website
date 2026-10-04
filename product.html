@@ -50,8 +50,8 @@
     </div>
 
     <div id="condition-report" style="margin-top:70px; max-width:760px; display:none;">
-      <p class="eyebrow">Condition report</p>
-      <h2 class="serif" style="font-size:26px; margin:16px 0 14px;">What our specialists noted</h2>
+      <p class="eyebrow" id="report-eyebrow">Condition report</p>
+      <h2 class="serif" id="report-heading" style="font-size:26px; margin:16px 0 14px;">What our specialists noted</h2>
       <p id="condition-text" style="color:#5c5443; font-size:14.5px; line-height:1.8;"></p>
     </div>
   </div>
@@ -140,64 +140,88 @@
     return `This ${w.brand} ${w.model} was independently authenticated by our in-house specialists ahead of listing \u2014 movement, case and bracelet verified against manufacturer specification, and ${papersNote}. It is offered in ${w.condition.toLowerCase()} condition and carries the full Wynder Authentication Guarantee.`;
   }
 
+  function goldBlurb(w){
+    const metal = w.category === 'silver' ? 'silver' : 'gold';
+    const bits = [`${w.model}: ${w.weight || ''} ${w.purity ? w.purity + ' fine ' : ''}${metal}`.replace(/\s+/g,' ').trim()];
+    let s = bits[0] + `, produced by ${w.brand}`;
+    if(w.year) s += ` (${w.year})`;
+    s += '.';
+    if(w.condition) s += ` Offered in ${w.condition.toLowerCase()} condition.`;
+    return s;
+  }
+
+  function specRows(w){
+    const rows = (w.category === 'gold' || w.category === 'silver')
+      ? [['Product', w.model], ['Mint / producer', w.brand], ['Weight', w.weight], ['Purity', w.purity], ['Year', w.year], ['Condition', w.condition]]
+      : [['Brand', w.brand], ['Model', w.model.replace(/,.*$/, '')], ['Reference number', w.ref], ['Materials', w.materials],
+         ['Case diameter', w.caseDiameter ? w.caseDiameter + 'mm' : ''], ['Movement', w.movement], ['Condition', w.condition],
+         ['Year of production', w.year], ['Box & papers', w.papers]];
+    return rows.filter(r => r[1] !== undefined && r[1] !== null && r[1] !== '')
+               .map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+  }
+
+  const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>';
+  const coinIcon = '<circle cx="60" cy="60" r="42"/><circle cx="60" cy="60" r="33"/><line x1="60" y1="42" x2="60" y2="78"/><line x1="46" y1="60" x2="74" y2="60"/>';
+
   const id = getParam('id');
-  const w = (typeof WYNDER_LISTINGS !== 'undefined') ? WYNDER_LISTINGS.find(x => x.id === id) : null;
+  const w0 = (typeof WYNDER_LISTINGS !== 'undefined') ? WYNDER_LISTINGS.find(x => x.id === id) : null;
+  const w = w0 ? Object.assign({ category: 'watch' }, w0) : null;
   const root = document.getElementById('product-root');
 
   if(!w){
     root.style.display = 'none';
     document.getElementById('not-found').style.display = 'block';
   } else {
+    const isGold = (w.category === 'gold' || w.category === 'silver');   // any bullion coin
     document.title = `${w.brand} ${w.model} — Wynder`;
-    document.getElementById('page-desc').setAttribute('content', `${w.brand} ${w.model}, ${w.meta.replace(/&middot;/g,'—').replace(/&amp;/g,'&')}. Independently verified by Wynder.`);
+    document.getElementById('page-desc').setAttribute('content', `${w.brand} ${w.model}, ${w.meta.replace(/&middot;/g,'—').replace(/&amp;/g,'&')}. Listed on Wynder.`);
     document.getElementById('crumb-current').textContent = `${w.brand} ${w.model}`;
 
+    const icon = isGold ? coinIcon : iconShapes[w.icon || 0];
     const mediaInner = w.img
       ? `<img src="${w.img}" alt="${w.brand} ${w.model}">`
-      : `<svg viewBox="0 0 120 120" width="42%" fill="none" stroke="#a9822f" stroke-width="1.3">${iconShapes[w.icon || 0]}</svg>`;
+      : `<svg viewBox="0 0 120 120" width="42%" fill="none" stroke="#a9822f" stroke-width="1.3">${icon}</svg>`;
+
+    const actions = isGold
+      ? `<a href="#" class="btn btn-gold">Buy now</a>
+         <a href="#" class="btn btn-ghost" style="border-color:#d9cdb0; color:#171511;">Speak to a specialist</a>`
+      : `<a href="#" class="btn btn-gold">Buy now</a>
+         <a href="#" class="btn btn-ghost" style="border-color:#d9cdb0; color:#171511;">Get financing quote</a>
+         <a href="sell.html" class="btn btn-ghost" style="border-color:#d9cdb0; color:#171511;">Part-exchange</a>`;
+
+    const trust = isGold
+      ? `<div>${checkSvg}Checked by Wynder before listing</div>`
+      : `<div>${checkSvg}Wynder Authentication Guarantee</div>
+         <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg>7-day money-back guarantee</div>
+         <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 10-16 0 8 8 0 0016 0z"/><path d="M12 8v4l3 3"/></svg>Insured delivery, 48hrs</div>`;
 
     root.innerHTML = `
       <div class="product-layout">
         <div>
           <div class="product-media" style="${w.img ? '' : 'display:flex; align-items:center; justify-content:center;'}">
-            <div class="wcard-badge">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-              Verified
-            </div>
+            <div class="wcard-badge">${checkSvg}${isGold ? (w.category === 'silver' ? 'Silver' : 'Gold') : 'Verified'}</div>
             ${mediaInner}
           </div>
+          ${w.imageNote ? `<p style="font-size:11.5px; color:#8a8272; margin-top:10px;">${w.imageNote}</p>` : ''}
         </div>
         <div>
           <div class="product-brand">${w.brand}</div>
           <h1 class="product-title">${w.model}</h1>
           <div class="product-sub">${w.meta}</div>
           <div class="product-price">${w.price}</div>
-          <div class="product-actions">
-            <a href="#" class="btn btn-gold">Buy now</a>
-            <a href="#" class="btn btn-ghost" style="border-color:#d9cdb0; color:#171511;">Get financing quote</a>
-            <a href="sell.html" class="btn btn-ghost" style="border-color:#d9cdb0; color:#171511;">Part-exchange</a>
-          </div>
-          <table class="spec-table">
-            <tr><td>Brand</td><td>${w.brand}</td></tr>
-            <tr><td>Model</td><td>${w.model.replace(/,.*$/, '')}</td></tr>
-            <tr><td>Reference number</td><td>${w.ref}</td></tr>
-            <tr><td>Materials</td><td>${w.materials}</td></tr>
-            <tr><td>Case diameter</td><td>${w.caseDiameter}mm</td></tr>
-            <tr><td>Movement</td><td>${w.movement}</td></tr>
-            <tr><td>Condition</td><td>${w.condition}</td></tr>
-            <tr><td>Year of production</td><td>${w.year}</td></tr>
-            <tr><td>Box &amp; papers</td><td>${w.papers}</td></tr>
-          </table>
-          <div class="trust-row">
-            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>Wynder Authentication Guarantee</div>
-            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg>7-day money-back guarantee</div>
-            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 10-16 0 8 8 0 0016 0z"/><path d="M12 8v4l3 3"/></svg>Insured delivery, 48hrs</div>
-          </div>
+          <div class="product-actions">${actions}</div>
+          <table class="spec-table">${specRows(w)}</table>
+          <div class="trust-row">${trust}</div>
+          ${isGold ? `<div style="margin-top:22px; border-left:2px solid #a9822f; background:#faf8f3; padding:14px 18px; font-size:13.5px; line-height:1.65; color:#4a4438;">Buying gold or silver? ID checks apply to larger orders, and online limits apply per order. <a href="id-requirements.html" style="color:#a9822f; text-decoration:underline; white-space:nowrap;">See our ID requirements &rarr;</a></div>` : ''}
         </div>
       </div>
     `;
 
-    document.getElementById('condition-text').textContent = conditionBlurb(w);
+    if(isGold){
+      document.getElementById('report-eyebrow').textContent = 'About this piece';
+      document.getElementById('report-heading').textContent = 'The details';
+    }
+    document.getElementById('condition-text').textContent = w.description || (isGold ? goldBlurb(w) : conditionBlurb(w));
     document.getElementById('condition-report').style.display = 'block';
   }
 </script>

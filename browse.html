@@ -33,7 +33,7 @@
 <section class="pagebanner">
   <div class="wrap">
     <div class="crumb"><a href="index.html">Home</a> &nbsp;/&nbsp; Browse</div>
-    <h1 class="serif">Every watch, <em>independently verified.</em></h1>
+    <h1 class="serif" id="banner-title">Every watch, <em>independently verified.</em></h1>
     <p class="lead" id="banner-count">Loading inventory&hellip;</p>
   </div>
 </section>
@@ -44,7 +44,7 @@
 
       <aside class="filters">
         <div class="filter-block">
-          <div class="filter-h">Brand</div>
+          <div class="filter-h" id="brand-heading">Brand</div>
           <div id="filter-brand"></div>
         </div>
 
@@ -57,17 +57,17 @@
           </div>
         </div>
 
-        <div class="filter-block">
+        <div class="filter-block watch-only">
           <div class="filter-h">Condition</div>
           <div id="filter-condition"></div>
         </div>
 
-        <div class="filter-block">
+        <div class="filter-block watch-only">
           <div class="filter-h">Papers</div>
           <div id="filter-papers"></div>
         </div>
 
-        <div class="filter-block" style="border-bottom:none;">
+        <div class="filter-block watch-only" style="border-bottom:none;">
           <div class="filter-h">Case size</div>
           <div id="filter-size"></div>
         </div>
@@ -76,6 +76,8 @@
       </aside>
 
       <div>
+        <div class="cat-tabs" id="cat-tabs" style="display:none;"></div>
+
         <div class="results-head">
           <div class="results-count mono" id="results-count">&nbsp;</div>
           <select class="sort-select" id="sort-select">
@@ -154,7 +156,14 @@
     '<circle cx="60" cy="60" r="44"/><circle cx="60" cy="60" r="34"/><line x1="60" y1="60" x2="60" y2="38"/><line x1="60" y1="60" x2="72" y2="66"/><circle cx="60" cy="60" r="2.4" fill="#a9822f"/><circle cx="60" cy="24" r="3"/>',
   ];
 
-  const ALL = WYNDER_LISTINGS;
+  // every listing is a 'watch' unless data/listings.js says otherwise
+  const ALL = WYNDER_LISTINGS.map(w => Object.assign({ category: 'watch' }, w));
+  // Watches, Gold and Silver are always offered as tabs; any other category in the data is added after them
+  const CATS = ['watch', 'gold', 'silver'].concat(Array.from(new Set(ALL.map(w => w.category))).filter(c => !['watch', 'gold', 'silver'].includes(c)));
+  const CAT_LABEL = { watch: 'Watches', gold: 'Gold', silver: 'Silver' };
+  const CAT_BADGE = { watch: 'Verified', gold: 'Gold', silver: 'Silver' };
+  const BULLION = ['gold', 'silver'];
+  const coinIcon = '<circle cx="60" cy="60" r="42"/><circle cx="60" cy="60" r="33"/><line x1="60" y1="42" x2="60" y2="78"/><line x1="46" y1="60" x2="74" y2="60"/>';
   const CASE_BUCKETS = [
     { key: 'under36', label: 'Under 36mm', test: d => d < 36 },
     { key: '36to40',  label: '36\u201340mm', test: d => d >= 36 && d <= 40 },
@@ -162,47 +171,64 @@
     { key: 'over44',  label: 'Over 44mm', test: d => d > 44 },
   ];
 
-  function countBy(items, keyFn){
-    const counts = {};
-    items.forEach(w => { const k = keyFn(w); counts[k] = (counts[k]||0) + 1; });
-    return counts;
-  }
-
-  function buildCheckboxGroup(container, items, keyFn, labelFn, sortKeys){
-    const counts = countBy(items, keyFn);
-    let keys = Object.keys(counts);
-    if(sortKeys) keys = sortKeys(keys); else keys.sort();
-    container.innerHTML = keys.map(k => `
-      <label class="filter-opt">
-        <input type="checkbox" data-value="${k}">
-        ${labelFn(k)} <span class="cnt">${counts[k]}</span>
-      </label>
-    `).join('');
-  }
+  let activeCat = 'all';
+  const wantedCat = new URLSearchParams(window.location.search).get('category');
+  if(CATS.length > 1 && CATS.includes(wantedCat)) activeCat = wantedCat;
 
   const brandEl = document.getElementById('filter-brand');
   const conditionEl = document.getElementById('filter-condition');
   const papersEl = document.getElementById('filter-papers');
   const sizeEl = document.getElementById('filter-size');
 
-  buildCheckboxGroup(brandEl, ALL, w => w.brand, k => k);
-  buildCheckboxGroup(conditionEl, ALL, w => w.condition, k => k, keys => {
-    const order = ['Unworn','Excellent','Very good','Good'];
-    return keys.sort((a,b) => order.indexOf(a) - order.indexOf(b));
-  });
-  buildCheckboxGroup(papersEl, ALL, w => w.papers, k => k, keys => {
-    const order = ['Full set','Box only','Papers only','Watch only'];
-    return keys.sort((a,b) => order.indexOf(a) - order.indexOf(b));
-  });
+  function pool(){
+    return activeCat === 'all' ? ALL : ALL.filter(w => w.category === activeCat);
+  }
+  function watchMode(){
+    // watch-only filters show on the Watches tab, and on All while there is nothing but watches
+    return activeCat === 'watch' || (activeCat === 'all' && !ALL.some(w => w.category !== 'watch'));
+  }
 
-  const sizeCounts = {};
-  CASE_BUCKETS.forEach(b => { sizeCounts[b.key] = ALL.filter(w => b.test(w.caseDiameter)).length; });
-  sizeEl.innerHTML = CASE_BUCKETS.filter(b => sizeCounts[b.key] > 0).map(b => `
-    <label class="filter-opt">
-      <input type="checkbox" data-value="${b.key}">
-      ${b.label} <span class="cnt">${sizeCounts[b.key]}</span>
-    </label>
-  `).join('');
+  function countBy(items, keyFn){
+    const counts = {};
+    items.forEach(w => { const k = keyFn(w); counts[k] = (counts[k]||0) + 1; });
+    return counts;
+  }
+  function buildCheckboxGroup(container, items, keyFn, sortKeys){
+    const counts = countBy(items, keyFn);
+    let keys = Object.keys(counts);
+    keys = sortKeys ? sortKeys(keys) : keys.sort();
+    container.innerHTML = keys.map(k => `
+      <label class="filter-opt">
+        <input type="checkbox" data-value="${k}">
+        ${k} <span class="cnt">${counts[k]}</span>
+      </label>
+    `).join('');
+  }
+
+  function buildFilters(){
+    const items = pool();
+    const watches = items.filter(w => w.category === 'watch');
+    document.getElementById('brand-heading').textContent =
+      BULLION.includes(activeCat) ? 'Mint' : (ALL.some(w => BULLION.includes(w.category)) && activeCat === 'all' ? 'Brand / mint' : 'Brand');
+    buildCheckboxGroup(brandEl, items, w => w.brand);
+    buildCheckboxGroup(conditionEl, watches, w => w.condition, keys => {
+      const order = ['Unworn','Excellent','Very good','Good'];
+      return keys.sort((a,b) => order.indexOf(a) - order.indexOf(b));
+    });
+    buildCheckboxGroup(papersEl, watches, w => w.papers, keys => {
+      const order = ['Full set','Box only','Papers only','Watch only'];
+      return keys.sort((a,b) => order.indexOf(a) - order.indexOf(b));
+    });
+    const sizeCounts = {};
+    CASE_BUCKETS.forEach(b => { sizeCounts[b.key] = watches.filter(w => b.test(w.caseDiameter)).length; });
+    sizeEl.innerHTML = CASE_BUCKETS.filter(b => sizeCounts[b.key] > 0).map(b => `
+      <label class="filter-opt">
+        <input type="checkbox" data-value="${b.key}">
+        ${b.label} <span class="cnt">${sizeCounts[b.key]}</span>
+      </label>
+    `).join('');
+    document.querySelectorAll('.watch-only').forEach(el => { el.style.display = watchMode() ? '' : 'none'; });
+  }
 
   function getChecked(container){
     return Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.dataset.value);
@@ -216,13 +242,15 @@
     const min = parseFloat(document.getElementById('price-min').value);
     const max = parseFloat(document.getElementById('price-max').value);
 
-    let results = ALL.filter(w => {
+    let results = pool().filter(w => {
       if(brands.length && !brands.includes(w.brand)) return false;
-      if(conditions.length && !conditions.includes(w.condition)) return false;
-      if(papers.length && !papers.includes(w.papers)) return false;
-      if(sizes.length){
-        const bucket = CASE_BUCKETS.find(b => b.test(w.caseDiameter));
-        if(!bucket || !sizes.includes(bucket.key)) return false;
+      if(w.category === 'watch'){
+        if(conditions.length && !conditions.includes(w.condition)) return false;
+        if(papers.length && !papers.includes(w.papers)) return false;
+        if(sizes.length){
+          const bucket = CASE_BUCKETS.find(b => b.test(w.caseDiameter));
+          if(!bucket || !sizes.includes(bucket.key)) return false;
+        }
       }
       if(!isNaN(min) && w.priceValue < min) return false;
       if(!isNaN(max) && w.priceValue > max) return false;
@@ -232,7 +260,10 @@
     const sort = document.getElementById('sort-select').value;
     if(sort === 'price-asc') results = results.slice().sort((a,b) => a.priceValue - b.priceValue);
     else if(sort === 'price-desc') results = results.slice().sort((a,b) => b.priceValue - a.priceValue);
-    else if(sort === 'newest') results = results.slice().sort((a,b) => b.year - a.year);
+    else if(sort === 'newest'){
+      const yr = w => parseInt(String(w.year || '').slice(-4), 10) || 0;   // '2014–2026' sorts as 2026
+      results = results.slice().sort((a,b) => yr(b) - yr(a));
+    }
 
     renderGrid(results);
   }
@@ -241,8 +272,12 @@
     const grid = document.getElementById('watch-grid');
     const countEl = document.getElementById('results-count');
     const noResults = document.getElementById('no-results');
+    const noun = BULLION.includes(activeCat) ? (CAT_LABEL[activeCat].toLowerCase() + ' listing') : (watchMode() ? 'watch' : 'listing');
 
-    countEl.textContent = `${items.length} result${items.length === 1 ? '' : 's'}`;
+    countEl.textContent = `${items.length} ${noun}${items.length === 1 ? '' : (noun === 'watch' ? 'es' : 's')}`;
+    noResults.textContent = pool().length === 0
+      ? (BULLION.includes(activeCat) ? CAT_LABEL[activeCat] + ' is coming soon \u2014 new listings will appear here shortly.' : 'Nothing listed here yet.')
+      : 'No listings match those filters. Try widening your search.';
     noResults.style.display = items.length ? 'none' : 'block';
     grid.style.display = items.length ? '' : 'none';
 
@@ -251,27 +286,70 @@
         <div class="wcard-media">
           <div class="wcard-badge">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-            Verified
+            ${CAT_BADGE[w.category] || 'Listed'}
           </div>
           ${w.img
             ? `<img src="${w.img}" alt="${w.brand} ${w.model}" style="width:100%; height:100%; object-fit:cover;">`
-            : `<svg viewBox="0 0 120 120" fill="none" stroke="#a9822f" stroke-width="1.4">${iconShapes[w.icon != null ? w.icon : (i % iconShapes.length)]}</svg>`}
+            : `<svg viewBox="0 0 120 120" fill="none" stroke="#a9822f" stroke-width="1.4">${BULLION.includes(w.category) ? coinIcon : iconShapes[w.icon != null ? w.icon : (i % iconShapes.length)]}</svg>`}
         </div>
         <div class="wcard-body">
           <div class="wcard-brand">${w.brand}</div>
           <div class="wcard-name serif">${w.model}</div>
           <div class="wcard-meta mono">${w.meta}</div>
+          ${BULLION.includes(w.category) ? '<a href="id-requirements.html" style="display:inline-block; margin-top:10px; font-size:11.5px; color:#a9822f; text-decoration:underline;">ID required to buy &rarr;</a>' : ''}
           <div class="wcard-foot">
             <span class="wcard-price">${w.price}</span>
             <a href="${w.link || ('product.html?id=' + w.id)}" class="wcard-link">View &rarr;</a>
           </div>
         </div>
       </div>
-    `).join('');
+    `).join('') + '<div class="wcard-filler"></div>'.repeat((3 - items.length % 3) % 3);
   }
 
-  document.getElementById('banner-count').textContent =
-    `${ALL.length} watches currently available, each authenticated by our in-house specialists before listing.`;
+  function renderBanner(){
+    const titleEl = document.getElementById('banner-title');
+    const lead = document.getElementById('banner-count');
+    const count = c => ALL.filter(w => w.category === c).length;
+    titleEl.innerHTML = 'Browse our <em>latest listings.</em>';
+    const empty = BULLION.filter(c => count(c) === 0).map(c => CAT_LABEL[c]);
+    const soon = empty.length ? ' ' + empty.join(' and ') + ' coming soon.' : '';
+    const bullionLive = BULLION.filter(c => count(c) > 0);
+    if(bullionLive.length === 0){
+      lead.textContent = `${count('watch')} watches currently available, each authenticated by our in-house specialists before listing.${soon}`;
+      return;
+    }
+    const parts = bullionLive.map(c => `${count(c)} ${CAT_LABEL[c].toLowerCase()}`).concat([`${count('watch')} watches`]);
+    const list = parts.length > 2 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts.join(' and ');
+    lead.textContent = `${ALL.length} listings available \u2014 ${list}.${soon}`;
+  }
+
+  function renderTabs(){
+    const tabsEl = document.getElementById('cat-tabs');
+    if(CATS.length < 2){ tabsEl.style.display = 'none'; return; }
+    tabsEl.style.display = 'flex';
+    const tabs = [{ key: 'all', label: 'All', n: ALL.length }].concat(
+      CATS.map(c => ({ key: c, label: CAT_LABEL[c] || c, n: ALL.filter(w => w.category === c).length }))
+    );
+    tabsEl.innerHTML = tabs.map(t =>
+      `<button type="button" class="cat-tab${t.key === activeCat ? ' active' : ''}" data-cat="${t.key}">${t.label}<span class="n">${t.n}</span></button>`
+    ).join('');
+  }
+
+  function resetInputs(){
+    document.getElementById('price-min').value = '';
+    document.getElementById('price-max').value = '';
+    document.getElementById('sort-select').value = 'featured';
+  }
+
+  document.getElementById('cat-tabs').addEventListener('click', e => {
+    const btn = e.target.closest('.cat-tab');
+    if(!btn) return;
+    activeCat = btn.dataset.cat;
+    resetInputs();
+    renderTabs();
+    buildFilters();
+    applyFilters();
+  });
 
   [brandEl, conditionEl, papersEl, sizeEl].forEach(el => el.addEventListener('change', applyFilters));
   document.getElementById('price-min').addEventListener('input', applyFilters);
@@ -279,12 +357,13 @@
   document.getElementById('sort-select').addEventListener('change', applyFilters);
   document.getElementById('clear-filters').addEventListener('click', () => {
     document.querySelectorAll('.filters input[type="checkbox"]').forEach(el => el.checked = false);
-    document.getElementById('price-min').value = '';
-    document.getElementById('price-max').value = '';
-    document.getElementById('sort-select').value = 'featured';
+    resetInputs();
     applyFilters();
   });
 
+  renderBanner();
+  renderTabs();
+  buildFilters();
   applyFilters();
 </script>
 
